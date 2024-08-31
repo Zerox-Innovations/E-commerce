@@ -95,28 +95,6 @@ class UserLoginView(APIView):
 
 
 
-# Define explicit OpenAPI schemas
-# profile_schema = openapi.Schema(
-#     type=openapi.TYPE_OBJECT,
-#     properties={
-#         'address_line_1': openapi.Schema(type=openapi.TYPE_STRING, description='Address Line 1'),
-#         'address_line_2': openapi.Schema(type=openapi.TYPE_STRING, description='Address Line 2'),
-#         'profile_picture': openapi.Schema(type=openapi.TYPE_STRING, description='Profile Picture URL'),
-#         'city': openapi.Schema(type=openapi.TYPE_STRING, description='City'),
-#         'state': openapi.Schema(type=openapi.TYPE_STRING, description='State'),
-#         'country': openapi.Schema(type=openapi.TYPE_STRING, description='Country'),
-#     }
-# )
-
-# user_profile_schema = openapi.Schema(
-#     type=openapi.TYPE_OBJECT,
-#     properties={
-#         'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First Name'),
-#         'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last Name'),
-#         'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='Phone Number'),
-#         'profile': profile_schema,
-#     }
-# )
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -286,7 +264,7 @@ class ResetPasswordRequestView(APIView):
             email = serializer.validated_data['email']
             try:
                 user = Account.objects.get(email=email)
-                print(user,'userrrrrrrrrrrrr')
+                
                 token = generate_password_reset_token(user)
                 print(token)
                 send_password_reset_email(user, token)
@@ -385,38 +363,46 @@ class UserAddToCartView(APIView):
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response({'Msg': "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        cart, created = UserCart.objects.get_or_create(user_cart=request.user)
-
-        cart.cart_product.add(product)
-
         
-        user_product = UserCart.objects.filter(id=cart.id).prefetch_related('cart_product').first()
+        cart_item = UserCart.objects.filter(user_cart=request.user,cart_product=product)
+        if cart_item.exists():
+            for cart_item in cart_item:
+                cart_item.product_quantity +=1
+                price = cart_item.cart_product.aggregate(total=Sum('product_price'))['total']
+                cart_item.total_price = price * cart_item.product_quantity
+                cart_item.save()
+            return Response({"Msg":'Product quantity increased'},status=status.HTTP_200_OK)
 
-        total_price = user_product.cart_product.aggregate(total=Sum('product_price'))['total'] or 0
-        cart.total_price = total_price
-        cart.save()
+        new_cart = UserCart.objects.create(
+            user_cart = request.user,
+            total_price= product.product_price,
 
-        
+        )
+        new_cart.cart_product.add(product)
+
         response_data = {
-            'cart_product': ProductSerializer(user_product.cart_product.all(), many=True).data,
-            'product_quantity': user_product.cart_product.count(),  
-            'total_price': cart.total_price
-        }
-
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        'cart_product': ProductSerializer(new_cart.cart_product.all(), many=True).data,
+        'product_quantity': new_cart.product_quantity ,
+        'total_price': new_cart.total_price
+            }
+        return Response(response_data,status=status.HTTP_201_CREATED)
+        
+        
+            
 
 
     def get(self,request):
 
         user=request.user
         try:
-            user_cart = UserCart.objects.filter(user_cart=user).prefetch_related('cart_product')
+            user_cart = UserCart.objects.filter(user_cart=user)
             serializer = UserCartGetSerializer(user_cart,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except UserCart.DoesNotExist:
             return Response({"Msg":'User cart not created'},status=status.HTTP_404_NOT_FOUND)
         
+
+
 
     def put(self, request):
         cart_id = request.GET.get('cart_id')
@@ -431,6 +417,7 @@ class UserAddToCartView(APIView):
         try:
             user = request.user
             cart_item = UserCart.objects.filter(user_cart=user, id=cart_id).first()
+            
 
             if not cart_item:
                 return Response({"Msg": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -442,11 +429,8 @@ class UserAddToCartView(APIView):
                 cart_item.product_quantity = quantity
 
                
-                total_price = 0
-                for product in cart_item.cart_product.all():
-                    total_price += product.product_price * quantity
-
-                cart_item.total_price = total_price
+                price = cart_item.cart_product.aggregate(total=Sum('product_price'))['total']
+                cart_item.total_price = price*quantity
                 cart_item.save()
 
                 response_data = {
@@ -477,16 +461,17 @@ class UserAddToCartView(APIView):
         user = request.user
 
         try:
-            cart_item = UserCart.objects.filter(cart_user=user, id=cart_id).first()
+            cart_item = UserCart.objects.filter(user_cart=user, id=cart_id).first()
 
             if not cart_item:
                 return Response({"Msg": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            product_name = [product.product_name for product in cart_item.cart_product.all()]
+            product_names = list(cart_item.cart_product.values_list('product_name', flat=True))
+            product_names_str = ', '.join(product_names)
 
             cart_item.delete()
 
-            return Response({"Msg": f'Product {product_name} has been removed from your cart'}, status=status.HTTP_200_OK)
+            return Response({"Msg": f'Product {product_names_str} has been removed from your cart'}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"Msg": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
