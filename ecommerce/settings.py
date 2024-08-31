@@ -113,7 +113,7 @@ DATABASES = {
         'PORT':5434
     }
 }
-database_url = os.getenv('DATABSE_URL')
+database_url = os.getenv('DATABASE_URL')
 DATABASES['default'] = dj_database_url.parse(database_url)
 
 
