@@ -18,7 +18,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 
 def home(request):
-    return HttpResponse("Start Our Journey")
+    return HttpResponse("Zerox E-commerce")
 
 
 
