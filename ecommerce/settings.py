@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -113,6 +113,8 @@ DATABASES = {
         'PORT':5434
     }
 }
+database_url = os.getenv('DATABSE_URL')
+DATABASES['default'] = dj_database_url.parse(database_url)
 
 
 # Password validation
