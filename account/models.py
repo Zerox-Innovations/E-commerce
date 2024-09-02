@@ -79,6 +79,7 @@ class UserProfile(models.Model):
     city = models.CharField(blank=True,max_length=100)
     state = models.CharField(blank=True,max_length=100)
     country = models.CharField(blank=True,max_length=100)
+    zip_code = models.IntegerField(blank=True,null=True)
     
     
 def __str__(self):

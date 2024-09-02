@@ -309,6 +309,19 @@ class ResetPasswordConfirmView(APIView):
 
 class UserProductsRetrive(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["All Product Get"],
+        operation_description="Retrieve All product for user",
+        responses={
+            200: openapi.Response(
+                description='All product Retrived',
+                schema=UserAllProductSerializer  # Use the explicit schema defined earlier
+            ),
+            400: openapi.Response(description='Bad Request'),
+            500: openapi.Response(description='Server Error')
+        },
+    )
     def get(self,request):
         try:
             
@@ -324,6 +337,28 @@ class UserProductsRetrive(APIView):
 
 class UserProductDetailsView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Product Get"],
+        operation_description="Retrieve Needed product Details for user",
+        responses={
+            200: openapi.Response(
+                description='Product Retrived',
+                schema=UserProductGetSerializer  # Use the explicit schema defined earlier
+            ),
+            400: openapi.Response(description='Bad Request'),
+            500: openapi.Response(description='Server Error')
+        },
+        manual_parameters=[
+            openapi.Parameter(
+                'product_id',
+                openapi.IN_QUERY,
+                description="product_id to Retrive the Needed Product",
+                type=openapi.TYPE_STRING,
+                required=True
+            ),
+        ],
+    )
     def get(self,request):
         product_id = request.GET.get('product_id')
         if not product_id:
@@ -347,6 +382,47 @@ class UserProductDetailsView(APIView):
 class UserAddToCartView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        tags=["Add To Cart"],
+        operation_description="Add a product to the user's cart or increase its quantity if it already exists.",
+        manual_parameters=[
+            openapi.Parameter(
+                'product_id',
+                openapi.IN_QUERY,
+                description="ID of the product to add to the cart",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description='Product quantity increased',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'Msg': openapi.Schema(type=openapi.TYPE_STRING, description="Message"),
+                    }
+                )
+            ),
+            201: openapi.Response(
+                description='New cart item created',
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'cart_product': openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(type=openapi.TYPE_OBJECT),  # Adjust this to match your ProductSerializer fields
+                        ),
+                        'product_quantity': openapi.Schema(type=openapi.TYPE_INTEGER, description="Quantity of the product"),
+                        'total_price': openapi.Schema(type=openapi.TYPE_INTEGER, description="Total price in the cart"),
+                    }
+                )
+            ),
+            400: openapi.Response(description='Bad Request'),
+            404: openapi.Response(description='Not Found'),
+            500: openapi.Response(description='Server Error')
+        }
+    )
 
     def post(self, request):
    
@@ -390,9 +466,21 @@ class UserAddToCartView(APIView):
         
             
 
-
+    @swagger_auto_schema(
+        tags=["Add To Cart"],
+        operation_description="Retrieve The User's Cart Products",
+        responses={
+            200: openapi.Response(
+                description='User cart Retrived',
+                schema=UserProductGetSerializer  # Use the explicit schema defined earlier
+            ),
+            400: openapi.Response(description='Bad Request'),
+            500: openapi.Response(description='Server Error')
+        },
+        
+    )
     def get(self,request):
-
+        
         user=request.user
         try:
             user_cart = UserCart.objects.filter(user_cart=user)
@@ -403,6 +491,47 @@ class UserAddToCartView(APIView):
         
 
 
+
+
+    @swagger_auto_schema(
+    tags=["Add To Cart"],
+    operation_description="Update the quantity of a product in the user's cart.",
+    manual_parameters=[
+        openapi.Parameter(
+            'cart_id',
+            openapi.IN_QUERY,
+            description="ID of the cart item to update",
+            type=openapi.TYPE_INTEGER,
+            required=True
+        )
+    ],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'product_quantity': openapi.Schema(type=openapi.TYPE_INTEGER, description="Updated quantity of the product"),
+        },
+        required=['product_quantity']
+    ),
+    responses={
+        200: openapi.Response(
+            description='Cart item updated',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'cart_product': openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(type=openapi.TYPE_OBJECT),  # Adjust to match ProductSerializer fields
+                    ),
+                    'product_quantity': openapi.Schema(type=openapi.TYPE_INTEGER, description="Quantity of the product"),
+                    'total_price': openapi.Schema(type=openapi.TYPE_INTEGER, description="Total price in the cart"),
+                }
+            )
+        ),
+        400: openapi.Response(description='Bad Request'),
+        404: openapi.Response(description='Not Found'),
+        500: openapi.Response(description='Server Error')
+    }
+)
 
     def put(self, request):
         cart_id = request.GET.get('cart_id')
@@ -448,6 +577,33 @@ class UserAddToCartView(APIView):
 
 
 
+    @swagger_auto_schema(
+    tags=["Delete From Cart"],
+    operation_description="Delete a product from the user's cart.",
+    manual_parameters=[
+        openapi.Parameter(
+            'cart_id',
+            openapi.IN_QUERY,
+            description="ID of the cart item to delete",
+            type=openapi.TYPE_INTEGER,
+            required=True
+        )
+    ],
+    responses={
+        200: openapi.Response(
+            description='Product removed from cart',
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'Msg': openapi.Schema(type=openapi.TYPE_STRING, description="Success message with product names"),
+                }
+            )
+        ),
+        400: openapi.Response(description='Bad Request'),
+        404: openapi.Response(description='Cart item not found'),
+        500: openapi.Response(description='Server Error')
+    }
+)
     def delete(self, request):
         cart_id = request.GET.get('cart_id')
         if not cart_id:
