@@ -16,7 +16,7 @@ urlpatterns = [
 
      path('productsget/',UserProductsRetrive.as_view(),name='productsget'),
      path('productdetails/',UserProductDetailsView.as_view(),name='productdetails'),
-     path('usercart/',UserAddToCartView.as_view(),name='usercart'),
+     path('addtocart/',UserAddToCartView.as_view(),name='addtocart'),
 ]
 
 
