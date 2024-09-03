@@ -207,6 +207,8 @@ class ProfileView(APIView):
             return Response({"Msg": 'Your Account Was Deleted'}, status=status.HTTP_200_OK)
         except Account.DoesNotExist:
             return Response({"Msg": 'User Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 class CahngePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(
