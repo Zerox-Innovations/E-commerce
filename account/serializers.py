@@ -8,7 +8,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model= Account
-        fields=['first_name','last_name','username','email','phone_number','password','password2']
+        fields=['username','email','phone_number','password','password2']
         
 
 
@@ -16,11 +16,7 @@ class AccountSerializer(serializers.ModelSerializer):
     def validate(self,valid):
         password=valid.get('password')
         password2=valid.get('password2')
-        fisrt_name=valid.get('first_name')
-        last_name=valid.get('last_name')
 
-        if fisrt_name==last_name:
-            raise serializers.ValidationError('Fist_name and Last_name can\'t be same')
         if password != password2:
             raise serializers.ValidationError('Password didn\'t match')
         return valid

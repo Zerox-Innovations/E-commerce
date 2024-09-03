@@ -5,7 +5,7 @@ from adminside.models import *
 
 class Myaccountmanager(BaseUserManager):
     
-    def create_user(self, first_name, last_name, username, email,phone_number, password=None,):
+    def create_user(self, username, email,phone_number, password=None,):
         if not email:
             raise ValueError("User must have an email address")
         if not username:
@@ -13,8 +13,6 @@ class Myaccountmanager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username = username,
-            first_name = first_name,
-            last_name = last_name,
             phone_number=phone_number
         )
 
@@ -27,8 +25,6 @@ class Myaccountmanager(BaseUserManager):
             email=self.normalize_email(email),
             username = username,
             password = password,
-            first_name = first_name,
-            last_name = last_name,
             phone_number=None
         )
         user.is_admin   = True
@@ -40,8 +36,6 @@ class Myaccountmanager(BaseUserManager):
 
     
 class Account(AbstractBaseUser):
-    first_name      = models.CharField(max_length=50,null=True,blank=True)
-    last_name       = models.CharField(max_length=50,null=True,blank=True)
     username        = models.CharField(max_length=50,unique=True)
     email           = models.EmailField(max_length=100,unique=True)
     phone_number = models.CharField(max_length=50, blank=True, null=True)
@@ -54,12 +48,9 @@ class Account(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username']
 
     objects=Myaccountmanager()
-    
-    def full_name(self):
-        return f'{self.first_name} {self.last_name}'
 
     def __str__(self):
         return self.email

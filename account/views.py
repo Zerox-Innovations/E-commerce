@@ -43,8 +43,6 @@ class UserRegisterView(APIView):
 
         if serializer.is_valid():               
             user = Account.objects.create_user(     
-                first_name = serializer.validated_data.get('first_name'),
-                last_name = serializer.validated_data.get('last_name'),
                 phone_number = serializer.validated_data.get('phone_number'),
                 password = serializer.validated_data.get('password'),
                 email = serializer.validated_data.get('email'),
@@ -208,7 +206,7 @@ class ProfileView(APIView):
         except Account.DoesNotExist:
             return Response({"Msg": 'User Not Found'}, status=status.HTTP_400_BAD_REQUEST)
         
-        
+
 class CahngePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(
