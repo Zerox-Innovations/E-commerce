@@ -33,7 +33,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model =UserProfile
-        fields = ['address_line_1','address_line_2','profile_picture','city','state','country']
+        fields = ['name','address_line_1','address_line_2','profile_picture','city','state','country','zip_code']
 
 
 class UserprofileSerializer(serializers.ModelSerializer):
@@ -41,13 +41,13 @@ class UserprofileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['first_name','last_name','phone_number','profile']
+        fields = ['username','phone_number','profile']
         ref_name = 'UserSideUserProfileSerializer'
 
     def update(self, instance, validated_data):
-        instance.first_name = validated_data.get("first_name", instance.first_name)
-        instance.last_name = validated_data.get("last_name", instance.last_name)
+
         instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+        instance.username = validated_data.get("username", instance.username)
         
         
         instance.save()
