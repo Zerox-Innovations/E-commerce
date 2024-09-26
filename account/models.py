@@ -82,4 +82,6 @@ class UserCart(models.Model):
     # created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
-     return self.cart_product.product_name
+        # Join product names into a single string
+        product_names = ', '.join([product.product_name for product in self.cart_product.all()])
+        return f"UserCart: {product_names}"
