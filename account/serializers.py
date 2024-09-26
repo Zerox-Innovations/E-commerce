@@ -8,7 +8,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model= Account
-        fields=['username','email','phone_number','password','password2']
+        fields=['username','email','password','password2']
         
 
 
@@ -33,7 +33,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model =UserProfile
-        fields = ['name','address_line_1','address_line_2','profile_picture','city','state','country','zip_code']
+        fields = ['name','phone_number','profile_picture']
 
 
 class UserprofileSerializer(serializers.ModelSerializer):
@@ -41,12 +41,11 @@ class UserprofileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['username','phone_number','profile']
+        fields = ['username','profile']
         ref_name = 'UserSideUserProfileSerializer'
 
     def update(self, instance, validated_data):
 
-        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
         instance.username = validated_data.get("username", instance.username)
         
         

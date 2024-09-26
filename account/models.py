@@ -5,7 +5,7 @@ from adminside.models import *
 
 class Myaccountmanager(BaseUserManager):
     
-    def create_user(self, username, email,phone_number, password=None,):
+    def create_user(self, username, email, password=None,):
         if not email:
             raise ValueError("User must have an email address")
         if not username:
@@ -13,7 +13,6 @@ class Myaccountmanager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username = username,
-            phone_number=phone_number
         )
 
         user.set_password(password)
@@ -38,7 +37,6 @@ class Myaccountmanager(BaseUserManager):
 class Account(AbstractBaseUser):
     username        = models.CharField(max_length=50,unique=True)
     email           = models.EmailField(max_length=100,unique=True)
-    phone_number = models.CharField(max_length=50, blank=True, null=True)
 #required
     date_joined = models.DateTimeField(auto_now_add = True)
     last_login = models.DateTimeField(auto_now_add=True)
@@ -63,22 +61,16 @@ class Account(AbstractBaseUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(Account, on_delete=models.CASCADE,related_name='profile')
+    user = models.OneToOneField(Account, on_delete=models.CASCADE,related_name='userprofile')
     name = models.CharField(max_length=250,blank=True,null=True)
-    address_line_1 = models.CharField(blank=True, max_length=100)
-    address_line_2 = models.CharField(blank=True, max_length=100)
+    phone_number = models.CharField(max_length=50, blank=True, null=True)
     profile_picture = models.ImageField(blank=True, upload_to='profilepicture')
-    city = models.CharField(blank=True,max_length=100)
-    state = models.CharField(blank=True,max_length=100)
-    country = models.CharField(blank=True,max_length=100)
-    zip_code = models.IntegerField(blank=True,null=True)
     
     
-def __str__(self):
-    return self.user.first_name
+    def __str__(self):
+        return self.user.username
 
-def full_address(self):
-    f'{self.address_line_1}{self.address_line_2}'
+
 
 
 
@@ -87,6 +79,7 @@ class UserCart(models.Model):
     cart_product = models.ManyToManyField(Product,blank=True,related_name='cart_product')
     product_quantity = models.IntegerField(default=1)
     total_price = models.IntegerField(null=True)
+    # created_at = models.DateField(auto_now_add=True)
 
-def __str__(self):
-    return self.cart_product.product_name
+    def __str__(self):
+     return self.cart_product.product_name

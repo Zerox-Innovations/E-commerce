@@ -44,7 +44,7 @@ class AdminAccoundlistView(APIView):
 
 class AdminAccountRetriveUpdateView(APIView):
     permission_classes = [IsAuthenticated,OnlyAdminPermission]
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
     @swagger_auto_schema(
         tags=["Admin User account Managing"],
         operation_description="Admin User account retrive by ID",

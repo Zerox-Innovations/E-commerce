@@ -43,10 +43,10 @@ class UserRegisterView(APIView):
 
         if serializer.is_valid():               
             user = Account.objects.create_user(     
-                phone_number = serializer.validated_data.get('phone_number'),
-                password = serializer.validated_data.get('password'),
+                
                 email = serializer.validated_data.get('email'),
-                username = serializer.validated_data.get('username'),       
+                username = serializer.validated_data.get('username'),    
+                password = serializer.validated_data.get('password'),   
             )
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

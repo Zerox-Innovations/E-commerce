@@ -3,12 +3,12 @@ from .models import *
 # Register your models here.
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    list_display=['id','username','email','phone_number']
+    list_display=['id','username','email']
 
 
 @admin.register(UserProfile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display=['id','user','profile_picture','country']
+    list_display=['id','user','profile_picture']
 
 
 

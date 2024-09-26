@@ -6,31 +6,32 @@ from rest_framework import serializers
 class AdminAccountListSerializer(serializers.ModelSerializer):
     class Meta :
         model = Account
-        fields =['id','first_name','last_name','username','email','phone_number','is_active']
+        fields =['id','username','email','is_active']
+
 
 
 
 
 class AdminUserProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
-        model =UserProfile
-        fields = ['address_line_1','address_line_2','profile_picture','city','state','country']
-
+        model = UserProfile
+        fields = ['name', 'phone_number', 'profile_picture']
 
 class AdminUpdateUserprofileSerializer(serializers.ModelSerializer):
-    profile = AdminUserProfileSerializer(required = False)
+    # Link the profile serializer properly
+    profile = AdminUserProfileSerializer(source='userprofile', read_only=True)
 
     class Meta:
         model = Account
-        fields = ['first_name','last_name','email','phone_number','is_active','profile']
-        ref_name = 'UserSideUserProfileSerializer'
+        fields = ['email', 'is_active', 'profile']
+        ref_name = 'AdminsideUserProfileSerializer'
 
     def update(self, instance, validated_data):
+        # Handle only Account fields here, since the profile is read-only
         instance.is_active = validated_data.get("is_active", instance.is_active)
-
         instance.save()
         return instance
+
     
 
 class AdminCategorySerializer(serializers.ModelSerializer):

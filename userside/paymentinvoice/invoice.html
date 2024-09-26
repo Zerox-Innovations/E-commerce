@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .invoice-container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .product-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .product-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .product-list li:last-child {
+            border-bottom: none;
+        }
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+        }
+        .total-price {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <h1>Invoice</h1>
+        <h2>Products</h2>
+        <ul class="product-list">
+            {% for product in product_details %}
+            <li>
+                <div class="product-details">
+                    <span>Product : {{ product.product_name }}</span>
+                    <span>Product Price = ₹ {{ product.product_price }}</span>
+                </div>
+                {% if product.product_image %}
+                    <img src="{{ product.product_image }}" alt="{{ product.product_name }}" width="100">
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <h2>Total Price: ₹ {{ payable_amount }}</h2>
+        <p>Thank you for your purchase!</p>
+    </div>
+</body>
+</html>

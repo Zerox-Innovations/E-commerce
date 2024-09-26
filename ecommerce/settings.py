@@ -84,7 +84,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'userside', 'paymentinvoice')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -192,6 +192,8 @@ EMAIL_USE_TLS = True
 BACKEND_URL = "http://127.0.0.1:8000"
 
 
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
 
 # swagger
